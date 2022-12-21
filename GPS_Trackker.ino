@@ -24,20 +24,24 @@
 #include <TroykaGPS.h>
 #include <WiFiEspAT.h>
 
-// #define GPS_READ_INTERVAL 1000
-// #define SEND_LOGS_VIA_WIFI_INTERVAL 1000*60*60
 #define GPS_READ_INTERVAL 1000
 #define SEND_LOGS_VIA_WIFI_INTERVAL 10000
 
-SoftwareSerial mySerial(9, 10);
-#define GPS_SERIAL mySerial
+#define GPS_TX 9 
+#define GPS_RX 10
+#define ESP_TX 8
+#define ESP_RX 7
+#define ESP_CH 4 
 
-GPS gps(GPS_SERIAL);
-char gpsTime[16];
-
-SoftwareSerial EspSerial(8, 7);
 #define SECRET_SSID "Andrew"
 #define SECRET_PASS 88888888
+
+SoftwareSerial gpsSerial(GPS_TX, GPS_RX);
+
+GPS gps(gpsSerial);
+char gpsTime[16];
+
+SoftwareSerial espSerial(ESP_TX, ESP_RX);
 
 bool isUploadToWifiEnabled;
 
@@ -47,8 +51,8 @@ void setup() {
   while(!Serial);
 
   // esp8266
-  EspSerial.begin(9600);  
-  WiFi.init(EspSerial);
+  espSerial.begin(9600); 
+  WiFi.init(espSerial);
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
     while(1);
@@ -59,7 +63,7 @@ void setup() {
 
   // SD
   Serial.println("Initializing SD card...");
-  if (SD.begin(4)) {
+  if (SD.begin(ESP_CH)) {
     Serial.println("initialization done.");
     if (SD.exists("to_wifi_send.txt")) {
       mergeGpsLogToWifiLog();
@@ -73,11 +77,11 @@ void setup() {
   }
 
   // gps
-  GPS_SERIAL.begin(115200);
+  gpsSerial.begin(115200);
   Serial.println("GPS init is OK on speed 115200");
-  GPS_SERIAL.write("$PMTK251,9600*17\r\n");
-  GPS_SERIAL.end();
-  GPS_SERIAL.begin(9600);
+  gpsSerial.write("$PMTK251,9600*17\r\n");
+  gpsSerial.end();
+  gpsSerial.begin(9600);
   Serial.println("GPS init is OK on speed 9600");
 }
 
