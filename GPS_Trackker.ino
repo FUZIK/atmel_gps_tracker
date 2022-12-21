@@ -31,7 +31,7 @@
 #define GPS_RX 10
 #define ESP_TX 8
 #define ESP_RX 7
-#define ESP_CH 4 
+#define SD_CS 4 
 
 #define SECRET_SSID "Andrew"
 #define SECRET_PASS 88888888
@@ -63,7 +63,7 @@ void setup() {
 
   // SD
   Serial.println("Initializing SD card...");
-  if (SD.begin(ESP_CH)) {
+  if (SD.begin(SD_CS)) {
     Serial.println("initialization done.");
     if (SD.exists("to_wifi_send.txt")) {
       mergeGpsLogToWifiLog();
